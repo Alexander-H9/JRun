@@ -10,7 +10,7 @@ pygame.init()
 
 W, H = 800, 1000
 win = pygame.display.set_mode((W, H))
-pygame.display.set_caption('Side Scroller')
+pygame.display.set_caption('JRun')
 
 bg = pygame.image.load(os.path.join('images', 'bg1.jpg')).convert()
 #bg2 = pygame.image.load(os.path.join('images', 'bg2.jpg')).convert()
@@ -39,6 +39,7 @@ class player(object):
         self.jumpCount = 0
         self.runCount = 0
         self.jeting = False
+        self.falling = False
 
     def draw(self, win):
         if self.jumping:
@@ -65,6 +66,10 @@ class player(object):
                 win.blit(self.run[self.runCount // 2], (self.x, self.y))
                 self.runCount += 1
 
+        self.hitbox = (self.x + 11, self.y, self.width - 26, self.height)
+        #pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+
+        
 
 class laiserwall(object):
     img = [pygame.image.load(os.path.join('images', 'wall0.PNG')), pygame.image.load(os.path.join('images', 'wall1.PNG')),
@@ -85,27 +90,49 @@ class laiserwall(object):
         # transform.scale scales the size of the image to 64, 64
         win.blit(pygame.transform.scale(self.img[self.count // 2], (64, 64)), (self.x, self.y))
         self.count += 1
-        pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
+        #pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
+
+
+    def collide(self, rect):
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] + rect[3] > self.hitbox[1]:
+                return True
+        return False
 
 
 class obstacle2(laiserwall):
     img = pygame.image.load(os.path.join("images", "spike.png"))
 
     def draw(self, win):
-        self.hitbox = (self.x + 10, self.y, 28, 315)
+        self.hitbox = (self.x + 0, self.y + 0, self.width, self.height+135)
         win.blit(self.img, (self.x, self.y))
-        pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
+        #pygame.draw.rect(win, (255, 0, 0), self.hitbox, 2)
 
 
-bg_speed = 3.4
+    def collide(self, rect):
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] < self.hitbox[3]:
+                return True
+        return False
+
+
+def endScreen():
+
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                return False
+
+        largeFont = pygame.font.SysFont('comicsans', 80)
+        endScore = largeFont.render('Score: ' + str(score), 1, (255,255,255))
+        win.blit(endScore, (W/2 - endScore.get_width()/2, 200))
+        pygame.display.update()
 
 
 def redrawWindow():
-    for object in objects:
-        #object.x -= 1.4
-        object.x -= bg_speed
-        if object.x < -object.width * -1:
-            objects.pop(objects.index(object))
 
     win.blit(bg, (bgX, 0))  # draws our first bg image
     win.blit(bg, (bgX2, 0))  # draws the second bg image
@@ -113,23 +140,34 @@ def redrawWindow():
     # draws the random objects
     for x in objects:
         x.draw(win)
+
+    font = pygame.font.SysFont('comicsans', 30)
+    text = font.render("Score: " + str(score), 1, (255,255,255))
+    win.blit(text, (650, 10))
     pygame.display.update()  # updates the screen
 
 
-objects = []
 
 runner = player(200, 755, 64, 64)
-pygame.time.set_timer(USEREVENT + 1, 500)
-pygame.time.set_timer(USEREVENT + 2, random.randrange(3000, 5000))
+pygame.time.set_timer(USEREVENT + 2, random.randrange(1000, 3000)) # das USEREVENT 2 wird alle 2 bis 4 sekunden ausgelößt
 run = True
 speed = 30
-
-
+objects = []
+bg_speed = 6.4
+score = 0
 
 while run:
-    redrawWindow()
-    # bgX -= 1.4
-    # bgX2 -= 1.4
+
+    for object in objects:
+        if object.collide(runner.hitbox):
+            runner.falling = True
+            print("Collide!")
+            run = endScreen()
+
+        object.x -= bg_speed
+        if object.x < -object.width * -1:
+            objects.pop(objects.index(object))
+            score += 1
 
     bgX -= bg_speed
     bgX2 -= bg_speed
@@ -148,10 +186,6 @@ while run:
 
         keys = pygame.key.get_pressed()
 
-        # if keys[pygame.K_UP]:  # If user hits up arrow key
-        #     if not (runner.jumping):  # If we are not already jumping
-        #         runner.jumping = True
-
         if keys[pygame.K_SPACE]:
             if runner.y > 134:
                 runner.jeting = True
@@ -160,17 +194,17 @@ while run:
             if runner.y < 755:
                 runner.jeting = False
 
-        # if event.type == USEREVENT + 1:  # Checks if timer goes off
-        #     speed += 1  # Increases speed
-
         # fügt zufällig object(1) oder object(2) hinzu
         if event.type == USEREVENT + 2:
             r = random.randrange(0, 2)
             if r == 0:
-                objects.append(laiserwall(810, 760, 64, 64))
+                objects.append(laiserwall(810, 760, 64, 64))    # x,y,width,hight
             elif r == 1:
                 objects.append(obstacle2(810, 135, 48, 320))
             #speed += 1
             bg_speed += 0.1
 
     clock.tick(speed)
+    redrawWindow()
+
+# return score
