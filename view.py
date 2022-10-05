@@ -33,19 +33,26 @@ def endScreen(runner):
 
 
 
-def redrawWindow(runner, objects, bgX, bgX2):
+def redrawWindow(runners, objects, bgX, bgX2):
 
     win.blit(bg, (bgX, 0))  # draws our first bg image
     win.blit(bg, (bgX2, 0))  # draws the second bg image
-    runner.draw(win)
+
     # draws the random objects
     for x in objects:
         x.draw(win)
+    
+    # draw the runners
+    for ru in runners:
+        ru.draw(win)
+        # line between player and obstacle
+        pygame.draw.line(win, (255,0,0), (ru.x+50, ru.y), ru.obstacle_distance(objects), width=2)
 
-    # line between player and obstacle
-    pygame.draw.line(win, (255,0,0), (runner.x+50, runner.y), runner.obstacle_distance(objects), width=2)
+    # draw score 
+    if runners:
+        font = pygame.font.SysFont('comicsans', 30)
+        text = font.render("Score: " + str(runners[0].score), 1, (255,255,255))
+        win.blit(text, (650, 10))
 
-    font = pygame.font.SysFont('comicsans', 30)
-    text = font.render("Score: " + str(runner.score), 1, (255,255,255))
-    win.blit(text, (650, 10))
-    pygame.display.update()  # updates the screen
+    # updates the screen
+    pygame.display.update()  

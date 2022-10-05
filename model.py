@@ -6,36 +6,18 @@ import copy
 class Player(object):
     run = [pygame.image.load(os.path.join('images', str(x) + '.png')) for x in range(5, 8)]  # früher 8 bis 16
     jump = [pygame.image.load(os.path.join('images', str(x) + '.png')) for x in range(1, 5)]  # früher 1 bis 8
-    jumpList = [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4,
-                4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1,
-                -1, -1, -1, -1, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -3, -3, -3, -3, -3, -3, -3, -3, -3, -3,
-                -3, -3, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -8, -4]
-
-    # jumpList = [10, 12, 0, -12, -10, 0, 0]
-
+    score = 0
 
     def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.jumping = False
-        self.jumpCount = 0
         self.runCount = 0
         self.jeting = False
-        self.falling = False
-        self.score = 0
 
 
     def draw(self, win):
-        if self.jumping:
-            self.y -= self.jumpList[self.jumpCount] * 1.2
-            win.blit(self.jump[self.jumpCount // 36], (self.x, self.y))
-            self.jumpCount += 1
-            if self.jumpCount >= 108:
-                self.jumpCount = 0
-                self.jumping = False
-                self.runCount = 0
 
         if self.jeting:
             if self.y > 134:
