@@ -42,6 +42,9 @@ def redrawWindow(runner, objects, bgX, bgX2):
     for x in objects:
         x.draw(win)
 
+    # line between player and obstacle
+    pygame.draw.line(win, (255,0,0), (runner.x+50, runner.y), runner.obstacle_distance(objects), width=2)
+
     font = pygame.font.SysFont('comicsans', 30)
     text = font.render("Score: " + str(runner.score), 1, (255,255,255))
     win.blit(text, (650, 10))

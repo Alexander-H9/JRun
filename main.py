@@ -17,24 +17,25 @@ def controll():
     run = True
     speed = 30
     objects = []
-    bg_speed = 6.4
+    bg_speed = 3.4
     bg_width = get_bg_width()
     bgX = 0
     bgX2 = get_bg_width()
 
+    # fix timer update speed in the loop
     pygame.time.set_timer(USEREVENT + 2, random.randrange(1000//(0.15*bg_speed), 2000//(0.15*bg_speed))) # das USEREVENT 2 wird alle 2 bis 4 sekunden ausgelößt
 
     while run:
 
-        for object in objects:
-            if object.collide(runner.hitbox):
+        for objectt in objects:
+            if objectt.collide(runner.hitbox):
                 runner.falling = True
                 print("Collide!")
                 run = endScreen(runner)
 
-            object.x -= bg_speed
-            if object.x < -object.width * -1:
-                objects.pop(objects.index(object))
+            objectt.x -= bg_speed
+            if objectt.x < -objectt.width * -1:
+                objects.pop(objects.index(objectt))
                 runner.score += 1
 
         bgX -= bg_speed
@@ -70,7 +71,9 @@ def controll():
                 elif r == 1:
                     objects.append(Obstacle2(810, 135, 48, 320))
 
-                bg_speed += 3.1
+                bg_speed += 0.1
+                speed += 0.1
+
 
         clock.tick(speed)
         redrawWindow(runner, objects, bgX, bgX2)
@@ -81,3 +84,9 @@ def controll():
 
 if __name__ == "__main__":
     controll()
+
+    # TODO:
+    # move down obstacle2 to improve difficulty
+    # add jetpack limit
+    # add third obstacle
+    # add coins for extra score 

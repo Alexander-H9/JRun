@@ -1,5 +1,7 @@
 import pygame
 import os
+import math
+import copy
 
 class Player(object):
     run = [pygame.image.load(os.path.join('images', str(x) + '.png')) for x in range(5, 8)]  # früher 8 bis 16
@@ -53,6 +55,33 @@ class Player(object):
         self.hitbox = (self.x + 11, self.y, self.width - 26, self.height)
         #pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
 
+
+    def obstacle_distance(self, objects, d=False):
+        """
+        Return the x and y pos of the closest obstacle (x,y). If there are no obstacles the player pos will be returned.
+        If d is true, the player pos, the distance between player and obstacle pos will join the return statement (player.x, player.y dis, obs.x, obs.y).
+        """
+
+        # print(f'All objects: \n {objects}')
+
+        for obj in objects:
+            if obj.x < self.x:
+                continue
+            else:
+                objectt = copy.copy(obj)
+                if type(objectt) == Obstacle2:  # move the measurment point to the tip of the obstacle
+                    objectt.y += 317        
+
+                dist = math.hypot(self.x+50 - objectt.x, self.y - objectt.y)
+
+                # print(f'Distance: {dist}')
+
+                if d == False:
+                    return (objectt.x, objectt.y)
+                else:
+                    return self.x+50, self.y, dist, objectt.x, objectt.y
+        
+        return self.x+50, self.y
         
 
 class Laiserwall(object):
@@ -84,6 +113,10 @@ class Laiserwall(object):
         return False
 
 
+    def __repr__(self):
+        return f'Laiserwall at ({self.x},{self.y})'
+
+
 
 class Obstacle2(Laiserwall):
     img = pygame.image.load(os.path.join("images", "spike.png"))
@@ -99,3 +132,7 @@ class Obstacle2(Laiserwall):
             if rect[1] < self.hitbox[3]:
                 return True
         return False
+
+
+    def __repr__(self):
+        return f'Obstacle at ({self.x},{self.y})'
