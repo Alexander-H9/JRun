@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import os
+from model import Coin
 
 W, H = 800, 1000
 win = pygame.display.set_mode((W, H))
@@ -37,7 +38,6 @@ def redrawWindow(runners, objects, bgX, bgX2):
 
     win.blit(bg, (bgX, 0))  # draws our first bg image
     win.blit(bg, (bgX2, 0))  # draws the second bg image
-
     # draws the random objects
     for x in objects:
         x.draw(win)
@@ -47,6 +47,13 @@ def redrawWindow(runners, objects, bgX, bgX2):
         ru.draw(win)
         # line between player and obstacle
         pygame.draw.line(win, (255,0,0), (ru.x+50, ru.y), ru.obstacle_distance(objects), width=2)
+
+        for obj in objects:
+            if type(obj) == Coin:
+                if obj.x > ru.x:
+                    pygame.draw.line(win, (0,255,0), (ru.x+50, ru.y), (obj.x, obj.y), width=2)
+                    break
+
 
     # draw score 
     if runners:

@@ -3,7 +3,7 @@ import pygame
 from pygame.locals import *
 import random
 
-from model import Player, Laiserwall, Obstacle2
+from model import Player, Laiserwall, Obstacle2, Coin
 from view import redrawWindow, endScreen, get_bg_width
 
 def main_loop():
@@ -24,14 +24,23 @@ def main_loop():
 
     # fix timer update speed in the loop
     pygame.time.set_timer(USEREVENT + 2, random.randrange(1000//(0.15*bg_speed), 2000//(0.15*bg_speed))) # das USEREVENT 2 wird alle 2 bis 4 sekunden ausgelößt
+    pygame.time.set_timer(USEREVENT + 1, 3000)
 
     while run:
 
         for objectt in objects:
-            if objectt.collide(runner.hitbox):
-                runner.falling = True
+            
+            # catch a coin
+            if type(objectt) == Coin and objectt.collide(runner.hitbox) == True:
+                runner.score += 1
+                objects.pop(objects.index(objectt))
+            
+            # collide with a abstacle
+            elif objectt.collide(runner.hitbox):
                 print("Collide!")
                 run = endScreen(runner)
+
+            
 
             objectt.x -= bg_speed
             if objectt.x < -objectt.width * -1:
@@ -74,6 +83,8 @@ def main_loop():
                 bg_speed += 0.1
                 speed += 0.1
 
+            if event.type == USEREVENT + 1:
+                objects.append(Coin(810, random.randrange(135, 760), 44, 44))
 
         clock.tick(speed)
         redrawWindow([runner], objects, bgX, bgX2)

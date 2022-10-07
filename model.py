@@ -4,6 +4,7 @@ import math
 import copy
 
 class Player(object):
+
     run = [pygame.image.load(os.path.join('images', str(x) + '.png')) for x in range(5, 8)]  # früher 8 bis 16
     jump = [pygame.image.load(os.path.join('images', str(x) + '.png')) for x in range(1, 5)]  # früher 1 bis 8
     score = 0
@@ -47,7 +48,7 @@ class Player(object):
         # print(f'All objects: \n {objects}')
 
         for obj in objects:
-            if obj.x < self.x:
+            if obj.x < self.x or type(obj) == Coin:
                 continue
             else:
                 objectt = copy.copy(obj)
@@ -64,9 +65,40 @@ class Player(object):
                     return self.x+50, self.y, dist, objectt.x, objectt.y
         
         return self.x+50, self.y
-        
+
+
+
+class Coin(object):
+
+    coins = [pygame.image.load(os.path.join('images', "coin_0" + str(x) + '.png')) for x in range(1, 9)]
+
+    def __init__(self, x, y, width, height):
+        self.coinCount = 0
+        self.hitbox = (x, y, width, height)
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+
+    def draw(self, win):
+        if self.coinCount >= 32:
+            self.coinCount = 0
+
+        win.blit(self.coins[self.coinCount//4], (self.x, self.y))
+        self.coinCount += 1
+
+    def collide(self, rect):
+        self.hitbox = (self.x, self.y, self.width, self.height)
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] + rect[3] > self.hitbox[1] and rect[1] < self.hitbox[1] + self.hitbox[3]:
+                return True
+        return False
+
+
 
 class Laiserwall(object):
+    
     img = [pygame.image.load(os.path.join('images', 'wall0.PNG')), pygame.image.load(os.path.join('images', 'wall1.PNG')),
            pygame.image.load(os.path.join('images', 'wall2.PNG')), pygame.image.load(os.path.join('images', 'wall3.PNG'))]
 

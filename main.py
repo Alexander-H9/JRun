@@ -90,8 +90,8 @@ def main_loop(genomes, config):
 
             if len(objects) > 0:
                 obs_x, obs_y = ru.obstacle_distance(objects)
-                output = nets[x].activate((ru.y, abs(ru.y - obs_y)))
-                print("activation function: ", output)
+                output = nets[x].activate((ru.y, abs(ru.y - obs_y), abs(ru.x - obs_x)))
+                print("activation function (arctan): ", output)
 
                 if output[0] > 0.5:
                     ru.jeting = True
