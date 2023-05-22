@@ -3,7 +3,7 @@ import os
 import math
 import copy
 
-class Player(object):
+class Player():
 
     run = [pygame.image.load(os.path.join('images', str(x) + '.png')) for x in range(5, 8)]  # früher 8 bis 16
     jump = [pygame.image.load(os.path.join('images', str(x) + '.png')) for x in range(1, 5)]  # früher 1 bis 8
@@ -68,7 +68,7 @@ class Player(object):
 
 
 
-class Coin(object):
+class Coin():
 
     coins = [pygame.image.load(os.path.join('images', "coin_0" + str(x) + '.png')) for x in range(1, 9)]
 
@@ -97,7 +97,7 @@ class Coin(object):
 
 
 
-class Laiserwall(object):
+class Laiserwall():
     
     img = [pygame.image.load(os.path.join('images', 'wall0.PNG')), pygame.image.load(os.path.join('images', 'wall1.PNG')),
            pygame.image.load(os.path.join('images', 'wall2.PNG')), pygame.image.load(os.path.join('images', 'wall3.PNG'))]
