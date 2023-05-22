@@ -99,8 +99,8 @@ class Coin():
 
 class Laiserwall():
     
-    img = [pygame.image.load(os.path.join('images', 'wall0.PNG')), pygame.image.load(os.path.join('images', 'wall1.PNG')),
-           pygame.image.load(os.path.join('images', 'wall2.PNG')), pygame.image.load(os.path.join('images', 'wall3.PNG'))]
+    img = [pygame.image.load(os.path.join('images', 'wall0.png')), pygame.image.load(os.path.join('images', 'wall1.png')),
+           pygame.image.load(os.path.join('images', 'wall2.png')), pygame.image.load(os.path.join('images', 'wall3.png'))]
 
     def __init__(self, x, y, width, height):
         self.x = x
