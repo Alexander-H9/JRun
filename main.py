@@ -6,7 +6,7 @@ import random
 import os
 import neat
 
-from model import Player, Laiserwall, Obstacle2
+from model import Player, Laiserwall, Obstacle2, Coin
 from view import redrawWindow, endScreen, get_bg_width
 
 def main_loop(genomes, config):
@@ -16,7 +16,6 @@ def main_loop(genomes, config):
     nets = []
     ge = []
     runners = []
-    # runner = Player(200, 755, 64, 64)
 
     for _, genome in genomes:
         net = neat.nn.FeedForwardNetwork.create(genome, config)
@@ -37,26 +36,38 @@ def main_loop(genomes, config):
 
     # fix timer update speed in the loop
     pygame.time.set_timer(USEREVENT + 2, random.randrange(1000//(0.15*bg_speed), 2000//(0.15*bg_speed))) # das USEREVENT 2 wird alle 2 bis 4 sekunden ausgelößt
+    pygame.time.set_timer(USEREVENT + 1, 3000)
 
     while run and len(runners) > 0:
 
+        # object controller
         for objectt in objects:
+
+            # collision detection
             for x,ru in enumerate(runners):
-                if objectt.collide(ru.hitbox):
+                if objectt.collide(ru.hitbox) and type(objectt) != Coin:
                     ge[x].fitness -= 5
                     runners.pop(x)
                     nets.pop(x)
                     ge.pop(x)
                     if len(runners) == 0: break
 
+                # scoring a coin
+                elif type(objectt) == Coin and objectt.collide(ru.hitbox) == True:
+                    ge[x].fitness += 2
+                    runners[0].score += 0.5
+                    # objects.pop(objects.index(objectt))
+
+            # scoring after passing a object
             objectt.x -= bg_speed
             if objectt.x < -objectt.width * -1:
                 objects.pop(objects.index(objectt))
-                runners[0].score += 1
-                for g in ge:
-                    g.fitness += 3
+                if type(objectt) != Coin:
+                    runners[0].score += 1
+                    for g in ge:
+                        g.fitness += 1
 
-
+        # background shifting
         bgX -= bg_speed
         bgX2 -= bg_speed
 
@@ -67,6 +78,7 @@ def main_loop(genomes, config):
             bgX2 = bg_width
 
 
+        # spawn events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -81,17 +93,21 @@ def main_loop(genomes, config):
                 elif r == 1:
                     objects.append(Obstacle2(810, 135, 48, 320))
 
+            # spawns a coin
+            if event.type == USEREVENT + 1:
+                objects.append(Coin(810, random.randrange(135, 760), 44, 44))
+
                 bg_speed += 0.1
                 speed += 0.1
 
-
+        # runner/player actions
         for x, ru in enumerate(runners):
             ge[x].fitness += 0.03
 
             if len(objects) > 0:
                 obs_x, obs_y = ru.obstacle_distance(objects)
-                output = nets[x].activate((ru.y, abs(ru.y - obs_y), abs(ru.x - obs_x)))
-                print("activation function (arctan): ", output)
+                coin_x, coin_y = ru.coin_distance(objects)
+                output = nets[x].activate((ru.y, abs(ru.y - obs_y), abs(ru.x - obs_x), abs(ru.y - coin_y), abs(ru.x - coin_x)))
 
                 if output[0] > 0.5:
                     ru.jeting = True

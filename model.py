@@ -16,18 +16,20 @@ class Player():
         self.height = height
         self.runCount = 0
         self.jeting = False
+        self.speed = 10
+        self.jetpack_volume = 100
 
 
     def draw(self, win):
 
         if self.jeting:
             if self.y > 134:
-                self.y -= 8
+                self.y -= self.speed
             win.blit(self.jump[1], (self.x, self.y))
 
         if not self.jeting:
             if self.y < 755:
-                self.y += 8
+                self.y += self.speed
                 win.blit(self.jump[1], (self.x, self.y))
             else:
                 if self.runCount >= 6:
@@ -65,6 +67,13 @@ class Player():
                     return self.x+50, self.y, dist, objectt.x, objectt.y
         
         return self.x+50, self.y
+    
+
+    def coin_distance(self, objects):
+        for obj in objects:
+            if obj.x < self.x or type(obj) == Coin:
+                return (obj.x, obj.y)
+        return -1, -1
 
 
 
