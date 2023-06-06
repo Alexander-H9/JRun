@@ -7,10 +7,14 @@ W, H = 800, 1000
 win = pygame.display.set_mode((W, H))
 pygame.display.set_caption('JRun')
 
+# create background
 bg = pygame.image.load(os.path.join('images', 'bg1.jpg')).convert()
 #bg2 = pygame.image.load(os.path.join('images', 'bg2.jpg')).convert()
 # bgX = 0
 # bgX2 = bg.get_width()
+
+# ui-element
+# jet_bar_bg = Bar(20, 960, 123, 23, (255,255,255))
 
 
 def get_bg_width():
@@ -38,7 +42,9 @@ def redrawWindow(runners, objects, bgX, bgX2):
 
     win.blit(bg, (bgX, 0))  # draws our first bg image
     win.blit(bg, (bgX2, 0))  # draws the second bg image
-    # draws the random objects
+    # jet_bar_bg.draw(win)
+
+    # draw the random objects
     for x in objects:
         x.draw(win)
     

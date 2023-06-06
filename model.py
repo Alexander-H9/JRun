@@ -2,43 +2,66 @@ import pygame
 import os
 import math
 import copy
+from game_classes import GameObject, Obstacle
 
-class Player():
+
+class Player(GameObject):
 
     run = [pygame.image.load(os.path.join('images', str(x) + '.png')) for x in range(5, 8)]  # früher 8 bis 16
     jump = [pygame.image.load(os.path.join('images', str(x) + '.png')) for x in range(1, 5)]  # früher 1 bis 8
     score = 0
 
     def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+        super().__init__(x, y, width, height)
         self.runCount = 0
         self.jeting = False
+        self.jet_lock = False
         self.speed = 10
-        self.jetpack_volume = 100
+        self.jetpack_volume = 100.0
+
+        # payer specific ui-elements
+        self.jet_bar_bg = Bar(20, 960, 123, 23, (255,255,255))
+        self.jet_bar_volume = Bar(21, 961, 121, 21, (50,130,246))
 
 
     def draw(self, win):
 
+        # player trys jetting
         if self.jeting:
-            if self.y > 134:
+            # are the jetting conditions true
+            if self.y > 134 and self.jetpack_volume > 0 and self.jet_lock == False:
                 self.y -= self.speed
-            win.blit(self.jump[1], (self.x, self.y))
+                self.jetpack_volume -= 1
 
+                # disable the jatpack if the tank is empty
+                if self.jetpack_volume <= 0: self.jet_lock = True
+
+                win.blit(self.jump[1], (self.x, self.y))
+                
+            # lock the jatpack
+            else: self.jeting = False
+            
+
+        # falling
         if not self.jeting:
             if self.y < 755:
                 self.y += self.speed
                 win.blit(self.jump[1], (self.x, self.y))
+
+            # walking
             else:
-                if self.runCount >= 6:
-                    self.runCount = 0
+                if self.runCount >= 6: self.runCount = 0
+                if self.jetpack_volume < 100: self.jetpack_volume += 1
+                self.jet_lock = False
                 win.blit(self.run[self.runCount // 2], (self.x, self.y))
                 self.runCount += 1
 
         self.hitbox = (self.x + 11, self.y, self.width - 26, self.height)
         #pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
+
+        # payer specific ui-elements
+        self.jet_bar_bg.draw(win)
+        self.jet_bar_volume.draw(win, self.jetpack_volume)
 
 
     def obstacle_distance(self, objects, d=False):
@@ -77,17 +100,14 @@ class Player():
 
 
 
-class Coin():
+class Coin(Obstacle):
 
     coins = [pygame.image.load(os.path.join('images', "coin_0" + str(x) + '.png')) for x in range(1, 9)]
 
     def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
         self.coinCount = 0
         self.hitbox = (x, y, width, height)
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
 
 
     def draw(self, win):
@@ -106,16 +126,13 @@ class Coin():
 
 
 
-class Laiserwall():
+class Laiserwall(Obstacle):
     
     img = [pygame.image.load(os.path.join('images', 'wall0.png')), pygame.image.load(os.path.join('images', 'wall1.png')),
            pygame.image.load(os.path.join('images', 'wall2.png')), pygame.image.load(os.path.join('images', 'wall3.png'))]
 
     def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+        super().__init__(x, y, width, height)
         self.hitbox = (x, y, width, height)
         self.count = 0
 
@@ -159,3 +176,22 @@ class Obstacle2(Laiserwall):
 
     def __repr__(self):
         return f'Obstacle at ({self.x},{self.y})'
+    
+
+
+class Bar(GameObject):
+    """
+    Move this class up and create a instance for each runner.
+    """
+    
+    def __init__(self, x: int, y: int, width: int, height: int, color: tuple):
+        super().__init__(x, y, width, height)
+        self.color = color
+
+
+    def draw(self, win, jetpack_volume: float = None):
+        
+        if jetpack_volume == None: pygame.draw.rect(win, self.color, pygame.Rect(self.x, self.y, self.width, self.height))
+        else: 
+            bar_length = jetpack_volume*0.01 * self.width
+            pygame.draw.rect(win, self.color, pygame.Rect(self.x, self.y, bar_length, self.height))

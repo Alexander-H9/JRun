@@ -40,7 +40,6 @@ def main_loop():
                 print("Collide!")
                 run = endScreen(runner)
 
-            
 
             objectt.x -= bg_speed
             if objectt.x < -objectt.width * -1:
